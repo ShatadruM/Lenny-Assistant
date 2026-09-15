@@ -4,7 +4,7 @@ import { Cpu, Cloud, Sparkles, Menu } from 'lucide-react';
 import './Header.css';
 
 export default function Header({ sidebarOpen, onToggleSidebar }) {
-  const { llmProvider, setLlmProvider } = useChat();
+  const { llmProvider, setLlmProvider, logout } = useChat();
 
   return (
     <header className="header">
@@ -51,6 +51,13 @@ export default function Header({ sidebarOpen, onToggleSidebar }) {
             <span className="provider-text">Cloud Provider API</span>
           </button>
         </div>
+        <button
+          onClick={logout}
+          className="logout-button"
+          title="Sign out"
+        >
+          Sign out
+        </button>
       </div>
     </header>
   );

@@ -14,7 +14,7 @@ async def chat_endpoint(request: ChatRequest, db: AsyncSession = Depends(get_db)
         # 1. Ensure session exists or create a new one
         session_id = request.session_id
         if not session_id:
-            new_session = Session()
+            new_session = Session(user_id=request.user_id)
             db.add(new_session)
             await db.commit()
             await db.refresh(new_session)
@@ -61,11 +61,11 @@ async def chat_endpoint(request: ChatRequest, db: AsyncSession = Depends(get_db)
         raise HTTPException(status_code=500, detail="An internal error occurred during chat processing.")
 
 @router.get("/sessions")
-async def get_sessions(db: AsyncSession = Depends(get_db)):
+async def get_sessions(user_id: str, db: AsyncSession = Depends(get_db)):
     from sqlalchemy import select
     try:
-        # Fetch sessions ordered by creation date descending
-        stmt = select(Session).order_by(Session.created_at.desc())
+        # Fetch sessions ordered by creation date descending, filtered by user
+        stmt = select(Session).where(Session.user_id == user_id).order_by(Session.created_at.desc())
         result = await db.execute(stmt)
         sessions = result.scalars().all()
         return [{"id": s.id, "created_at": s.created_at, "user_metadata": s.user_metadata} for s in sessions]

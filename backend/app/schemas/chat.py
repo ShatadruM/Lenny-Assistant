@@ -3,9 +3,10 @@ from typing import List, Optional
 
 class ChatRequest(BaseModel):
     session_id: Optional[str] = None
+    user_id: Optional[str] = None
     message: str
     llm_provider: str = "local"
-    api_key: Optional[str] = None  # Added to accept user's key
+    api_key: Optional[str] = None
 
 class SourceNode(BaseModel):
     title: str

@@ -91,8 +91,6 @@ async def process_chat_message(message: str, provider: str, db: AsyncSession, ge
         "If the user asks for a flowchart, diagram, mindmap, or graph, strictly generate Mermaid.js code and wrap your response in ```mermaid ... ``` tags. "
         "Otherwise, respond in pure Markdown. NEVER output raw JSON unless the user specifically asks you to format the output as JSON."
     )
-    if context_str:
-        system_prompt += f"\n\nKNOWLEDGE BASE TRANSCRIPTS:\n{context_str}"
 
     tools = []
     if generate_essay_flag:
@@ -103,6 +101,14 @@ async def process_chat_message(message: str, provider: str, db: AsyncSession, ge
     # Note: user's latest message is already appended to the chat_history in api/chat.py!
     if not chat_history:
         messages = [{"role": "user", "content": message}]
+
+    # 3. Inject context directly into the final user message to ensure all models respect it
+    if context_str:
+        # Find the last user message and append the context
+        for i in range(len(messages) - 1, -1, -1):
+            if messages[i]["role"] == "user":
+                messages[i]["content"] = f"{messages[i]['content']}\n\n--- KNOWLEDGE BASE TRANSCRIPTS ---\n{context_str}\n----------------------------------\nPlease use the above transcripts to answer the question."
+                break
 
     try:
         # 4. Execute LLM Call

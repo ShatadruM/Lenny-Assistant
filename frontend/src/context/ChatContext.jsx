@@ -1,10 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { sendChatMessage, fetchSessions, fetchSessionMessages } from '../services/api';
+import { fetchSessionMessages } from '../services/api';
 
 const ChatContext = createContext();
 
 export function ChatProvider({ children }) {
-  const [sessionId, setSessionId] = useState(() => localStorage.getItem('lenny_session_id') || null);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('oogway_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [sessionId, setSessionId] = useState(() => localStorage.getItem('oogway_session_id') || null);
   const [llmProvider, setLlmProvider] = useState('local'); // 'local' | 'anthropic' | 'openai' | 'grok'
   const [apiKey, setApiKey] = useState(() => sessionStorage.getItem('lenny_api_key') || '');
   const [messages, setMessages] = useState([]);
@@ -16,10 +21,10 @@ export function ChatProvider({ children }) {
   // Load chat history if session exists
   useEffect(() => {
     if (sessionId) {
-      localStorage.setItem('lenny_session_id', sessionId);
+      localStorage.setItem('oogway_session_id', sessionId);
       loadSessionMessages(sessionId);
     } else {
-      localStorage.removeItem('lenny_session_id');
+      localStorage.removeItem('oogway_session_id');
       setMessages([]);
     }
   }, [sessionId]);
@@ -33,25 +38,38 @@ export function ChatProvider({ children }) {
     }
   }, [apiKey]);
 
-  // Load available sessions on mount
+  // Load available sessions on mount / user change
   useEffect(() => {
-    loadSessionsList();
-  }, []);
+    if (user) {
+      localStorage.setItem('oogway_user', JSON.stringify(user));
+      loadSessionsList();
+    } else {
+      localStorage.removeItem('oogway_user');
+      setSessionsList([]);
+      setSessionId(null);
+      setMessages([]);
+    }
+  }, [user]);
 
   const loadSessionsList = async () => {
+    if (!user) return;
     try {
-      const data = await fetchSessions();
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const res = await fetch(`${baseUrl}/api/sessions?user_id=${user.user_id}`);
+      const data = await res.json();
       setSessionsList(data);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const loadSessionMessages = async (id) => {
+  const loadSessionMessages = async (sid) => {
     setIsLoading(true);
     try {
-      const msgs = await fetchSessionMessages(id);
-      setMessages(msgs);
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const res = await fetch(`${baseUrl}/api/sessions/${sid}/messages`);
+      const data = await res.json();
+      setMessages(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -63,7 +81,7 @@ export function ChatProvider({ children }) {
     setSessionId(null);
     setMessages([]);
     setActiveArtifact(null);
-    localStorage.removeItem('lenny_session_id');
+    localStorage.removeItem('oogway_session_id');
     loadSessionsList();
   };
 
@@ -100,12 +118,20 @@ export function ChatProvider({ children }) {
     setIsLoading(true);
 
     try {
-      const data = await sendChatMessage({
-        sessionId,
-        message: content,
-        llmProvider,
-        apiKey
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const res = await fetch(`${baseUrl}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: sessionId,
+          user_id: user?.user_id,
+          message: content,
+          llm_provider: llmProvider,
+          api_key: apiKey
+        }),
       });
+
+      const data = await res.json();
 
       if (!sessionId && data.session_id) {
         setSessionId(data.session_id);
@@ -169,12 +195,20 @@ export function ChatProvider({ children }) {
     }
   };
 
+  const logout = () => {
+    setUser(null);
+  };
+
   return (
     <ChatContext.Provider
       value={{
+        user,
+        setUser,
+        logout,
         sessionId,
         llmProvider,
         setLlmProvider: handleProviderSelect,
+        handleProviderSelect,
         apiKey,
         setApiKey,
         isModalOpen,

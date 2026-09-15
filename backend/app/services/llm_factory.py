@@ -43,7 +43,7 @@ class LLMFactory:
             client = AsyncOpenAI(api_key=active_key, base_url="https://api.groq.com/openai/v1")
             
             response = await client.chat.completions.create(
-                model="llama-3.1-70b-versatile",
+                model="openai/gpt-oss-20b",
                 messages=[{"role": "system", "content": system_prompt}] + messages,
                 tools=tools if tools else None,
             )
