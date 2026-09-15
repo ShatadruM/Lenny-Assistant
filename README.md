@@ -1,7 +1,7 @@
 # Lenny Growth Assistant
 
-[![Oogway Labs Assignment - Lenny's Growth Assistant]](https://youtu.be/rfywW39RPLE)
-*(Replace `YOUR_VIDEO_ID` with the actual YouTube video ID to embed a clickable thumbnail!)*
+[[Oogway Labs Assignment - Lenny's Growth Assistant]](https://youtu.be/rfywW39RPLE)
+
 
 ## The Problem
 There is an overwhelming amount of high-quality growth, product, and startup advice buried in hundreds of hours of long-form podcast transcripts (specifically *Lenny's Podcast*). For a product manager, founder, or tech enthusiast, finding actionable insights requires sifting through massive amounts of text. 
