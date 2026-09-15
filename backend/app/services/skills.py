@@ -18,29 +18,33 @@ def format_ship30_essay(topic: str, grounded_context: str) -> str:
     )
 
 def get_ship30_tool_schema(provider: str):
+    description = "Generates a highly formatted, skimmable essay. Use this tool ONLY when the user asks a complex question requiring a deep dive, or explicitly asks for an essay. Do NOT use for conversational greetings or simple follow-up questions."
+    
     if provider == "anthropic":
         return {
             "name": "generate_ship30_essay",
-            "description": "Generates a highly formatted, skimmable 1,250-word essay using the Ship 30 for 30 framework.",
+            "description": description,
             "input_schema": {
                 "type": "object",
                 "properties": {
-                    "topic": {"type": "string", "description": "The main topic of the essay"}
+                    "topic": {"type": "string", "description": "The main topic of the essay"},
+                    "principles_source_url": {"type": "string", "description": "Optional URL to scrape for specific writing principles to apply."}
                 },
                 "required": ["topic"]
             }
         }
     else:
-        # OpenAI, Grok, and Local Ollama format
+        # OpenAI, Grok, Groq, and Local Ollama format
         return {
             "type": "function",
             "function": {
                 "name": "generate_ship30_essay",
-                "description": "Generates a highly formatted essay using the Ship 30 for 30 framework.",
+                "description": description,
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "topic": {"type": "string"}
+                        "topic": {"type": "string"},
+                        "principles_source_url": {"type": "string"}
                     },
                     "required": ["topic"]
                 }

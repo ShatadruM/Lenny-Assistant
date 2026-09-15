@@ -27,11 +27,19 @@ export default function ChatInput() {
 
   const handleShip30Shortcut = () => {
     if (isLoading) return;
-    const prompt = input.trim()
-      ? `Write a Ship 30 for 30 style essay grounded in transcripts about: ${input}`
-      : 'Write a Ship 30 for 30 style essay about finding product-market fit using the grounded transcripts.';
-    sendMessage(prompt);
-    setInput('');
+    setInput((prev) => {
+      const prefix = 'Write a Ship 30 essay about: ';
+      if (prev.startsWith(prefix)) return prev;
+      return prefix + prev;
+    });
+    // Optional: wait a tick for the state to update, then focus the textarea and move cursor to end
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.selectionStart = textareaRef.current.value.length;
+        textareaRef.current.selectionEnd = textareaRef.current.value.length;
+      }
+    }, 0);
   };
 
   return (

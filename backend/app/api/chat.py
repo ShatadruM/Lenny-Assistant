@@ -29,16 +29,24 @@ async def chat_endpoint(request: ChatRequest, db: AsyncSession = Depends(get_db)
         # 3. Detect if the user wants a Ship 30 essay
         generate_essay = "Ship 30" in request.message or "essay" in request.message.lower()
 
-        # 4. Route to the agent 
+        # 4. Fetch previous conversation history for context
+        from sqlalchemy import select
+        stmt = select(Message).where(Message.session_id == session_id).order_by(Message.created_at.asc())
+        result = await db.execute(stmt)
+        past_messages = result.scalars().all()
+        chat_history = [{"role": m.role, "content": m.content} for m in past_messages]
+
+        # 5. Route to the agent 
         reply_content, source_nodes = await process_chat_message(
             message=request.message,
             provider=request.llm_provider,
             db=db,
             generate_essay_flag=generate_essay,
-            api_key=request.api_key  # Pass it here
+            api_key=request.api_key,
+            chat_history=chat_history
         )
 
-        # 5. Save assistant message to database
+        # 6. Save assistant message to database
         assistant_msg = Message(session_id=session_id, role="assistant", content=reply_content)
         db.add(assistant_msg)
         await db.commit()
