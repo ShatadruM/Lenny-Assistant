@@ -1,6 +1,6 @@
 # Lenny Growth Assistant
 
-[[Oogway Labs Assignment - Lenny's Growth Assistant]](https://youtu.be/rfywW39RPLE)
+Youtube Video Demo --> [[Oogway Labs Assignment - Lenny's Growth Assistant]](https://youtu.be/rfywW39RPLE)
 
 
 ## The Problem
