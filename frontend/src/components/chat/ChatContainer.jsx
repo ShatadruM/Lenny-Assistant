@@ -6,14 +6,17 @@ import './ChatContainer.css';
 
 export default function ChatContainer() {
   const { messages, isLoading } = useChat();
-  const bottomRef = useRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (containerRef.current) {
+      // Direct assignment prevents unwanted parent scroll jumping
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
   }, [messages, isLoading]);
 
   return (
-    <div className="chat-container">
+    <div className="chat-container" ref={containerRef}>
       {messages.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon-wrapper">
@@ -35,7 +38,6 @@ export default function ChatContainer() {
               <span>Synthesizing transcript knowledge...</span>
             </div>
           )}
-          <div ref={bottomRef} />
         </div>
       )}
     </div>

@@ -25,7 +25,7 @@ async def generate_essay(topic: str, context: str, provider: str, api_key: str, 
     messages = [{"role": "user", "content": f"Please write the essay on {topic}."}]
     
     try:
-        if provider in ["anthropic", "openai", "grok"]:
+        if provider in ["anthropic", "openai", "groq"]:
             response = await llm_factory.call_cloud_agent(essay_prompt, messages, [], provider=provider, api_key=api_key)
             if provider == "anthropic":
                 reply = next(block.text for block in response.content if block.type == "text")
@@ -63,6 +63,7 @@ async def process_chat_message(message: str, provider: str, db: AsyncSession, ge
         "If the user asks for code, a UI component, or a layout, wrap your response in ```html ... ``` tags so the Artifact Viewer can render it. "
         "If the user asks for a flowchart, diagram, mindmap, or graph, strictly generate Mermaid.js code and wrap your response in ```mermaid ... ``` tags. "
         "Otherwise, respond in pure Markdown. NEVER output raw JSON unless the user specifically asks you to format the output as JSON. "
+        "CRITICAL INSTRUCTION: ONLY use the `generate_ship30_essay` tool if the user EXPLICITLY asks you to write a 'Ship 30' or 'Ship 30 for 30' essay. Do NOT use this tool to answer general questions (like 'who is Lenny'). "
         "If you decide to use a tool, just call the tool directly. Do not explain your thought process or apologize."
         f"\n\nKNOWLEDGE BASE TRANSCRIPTS:\n{context_str}"
     )
@@ -72,7 +73,7 @@ async def process_chat_message(message: str, provider: str, db: AsyncSession, ge
 
     try:
         # 4. Execute LLM Call
-        if provider in ["anthropic", "openai", "grok"]:
+        if provider in ["anthropic", "openai", "groq"]:
             response = await llm_factory.call_cloud_agent(system_prompt, messages, tools, provider=provider, api_key=api_key)
             
             # Since OpenAI and Anthropic tool use structures differ, we handle them based on provider

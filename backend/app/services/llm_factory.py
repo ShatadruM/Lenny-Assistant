@@ -29,28 +29,23 @@ class LLMFactory:
                 raise ValueError("An OpenAI API key is required.")
             client = AsyncOpenAI(api_key=active_key)
             
-            # Format Anthropic tools to OpenAI tools format
-            openai_tools = [{"type": "function", "function": t} for t in tools] if tools else None
-            
             response = await client.chat.completions.create(
                 model="gpt-4o",
                 messages=[{"role": "system", "content": system_prompt}] + messages,
-                tools=openai_tools,
+                tools=tools if tools else None,
             )
             return response
             
-        elif provider == "grok":
-            active_key = api_key or getattr(settings, 'GROK_API_KEY', None)
+        elif provider == "groq":
+            active_key = api_key or getattr(settings, 'GROQ_API_KEY', None)
             if not active_key:
-                raise ValueError("A Grok API key is required.")
-            client = AsyncOpenAI(api_key=active_key, base_url="https://api.x.ai/v1")
-            
-            openai_tools = [{"type": "function", "function": t} for t in tools] if tools else None
+                raise ValueError("A Groq API key is required.")
+            client = AsyncOpenAI(api_key=active_key, base_url="https://api.groq.com/openai/v1")
             
             response = await client.chat.completions.create(
-                model="grok-beta",
+                model="llama-3.1-70b-versatile",
                 messages=[{"role": "system", "content": system_prompt}] + messages,
-                tools=openai_tools,
+                tools=tools if tools else None,
             )
             return response
 

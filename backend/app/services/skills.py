@@ -18,7 +18,7 @@ def format_ship30_essay(topic: str, grounded_context: str) -> str:
     )
 
 def get_ship30_tool_schema(provider: str):
-    if provider == "cloud":
+    if provider == "anthropic":
         return {
             "name": "generate_ship30_essay",
             "description": "Generates a highly formatted, skimmable 1,250-word essay using the Ship 30 for 30 framework.",
@@ -31,6 +31,7 @@ def get_ship30_tool_schema(provider: str):
             }
         }
     else:
+        # OpenAI, Grok, and Local Ollama format
         return {
             "type": "function",
             "function": {

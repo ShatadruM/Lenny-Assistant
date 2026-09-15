@@ -51,7 +51,7 @@ export default function ApiKeyModal() {
             >
               <option value="openai">OpenAI (GPT-4o)</option>
               <option value="anthropic">Anthropic (Claude 3.5)</option>
-              <option value="grok">xAI (Grok-Beta)</option>
+              <option value="groq">Groq (Llama 3.1 70B)</option>
             </select>
           </div>
 

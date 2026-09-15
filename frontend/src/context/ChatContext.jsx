@@ -73,7 +73,7 @@ export function ChatProvider({ children }) {
   };
 
   const handleProviderSelect = (provider) => {
-    if (['anthropic', 'openai', 'grok'].includes(provider)) {
+    if (['anthropic', 'openai', 'groq'].includes(provider)) {
       setLlmProvider(provider);
       setIsModalOpen(true);
     } else {
