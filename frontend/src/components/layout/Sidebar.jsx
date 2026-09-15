@@ -81,10 +81,6 @@ export default function Sidebar({ open, onClose }) {
             <Database className="w-3.5 h-3.5 emerald-icon" />
             <span>Supabase pgvector</span>
           </div>
-          <div className="status-item">
-            <Terminal className="w-3.5 h-3.5 orange-icon" />
-            <span>RTX 4050 Active</span>
-          </div>
         </div>
       </aside>
     </>
