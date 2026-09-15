@@ -18,7 +18,7 @@ export default function ChatContainer() {
   return (
     <div className="chat-container" ref={containerRef}>
       {messages.length === 0 ? (
-        <div className="empty-state">
+        <div className="empty-state">Synthesizing
           <div className="empty-icon-wrapper">
             <Sparkles />
           </div>
@@ -35,7 +35,7 @@ export default function ChatContainer() {
           {isLoading && (
             <div className="loading-indicator">
               <Sparkles />
-              <span>Synthesizing transcript knowledge...</span>
+              <span> Thinking...</span>
             </div>
           )}
         </div>

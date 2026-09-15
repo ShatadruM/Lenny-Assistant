@@ -1,6 +1,6 @@
 # Lenny Growth Assistant
 
-[![YouTube Demo Video Placeholder](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+[![Oogway Labs Assignment - Lenny's Growth Assistant]](https://youtu.be/rfywW39RPLE)
 *(Replace `YOUR_VIDEO_ID` with the actual YouTube video ID to embed a clickable thumbnail!)*
 
 ## The Problem
