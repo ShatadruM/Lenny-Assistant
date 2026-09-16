@@ -10,11 +10,14 @@ from app.db.models import Base
 app = FastAPI(title="The Lenny Growth Assistant API")
 
 # Allow requests from the frontend (read from env or default to localhost)
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+# Supports comma-separated list for multiple origins
+frontend_urls = [url.strip() for url in os.getenv("FRONTEND_URL", "http://localhost:5173").split(",")]
+if "http://localhost:5173" not in frontend_urls:
+    frontend_urls.append("http://localhost:5173")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL],
+    allow_origins=frontend_urls,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
