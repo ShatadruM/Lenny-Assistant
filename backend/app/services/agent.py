@@ -71,7 +71,18 @@ async def generate_essay(topic: str, context: str, provider: str, api_key: str, 
 
 async def process_chat_message(message: str, provider: str, db: AsyncSession, generate_essay_flag: bool = False, api_key: str = None, chat_history: list = None):
     # 1. Always ground the query first (RAG)
-    context_nodes = await retrieve_context(message, db)
+    rag_failed = False
+    try:
+        context_nodes = await retrieve_context(message, db)
+    except httpx.ConnectError:
+        logger.warning("Ollama connection failed. Skipping RAG.")
+        context_nodes = []
+        rag_failed = True
+        
+    def append_warning(text: str) -> str:
+        if rag_failed:
+            return text + "\n\n> ⚠️ **RAG Disabled:** The local Ollama instance is unreachable. If you are using the deployed version, RAG will not work unless you set it up locally! The AI answered using its general knowledge."
+        return text
     
     # We do NOT short-circuit here if context_nodes is empty.
     # This allows the agent to respond to greetings ("Hi") or follow-up questions
@@ -123,7 +134,7 @@ async def process_chat_message(message: str, provider: str, db: AsyncSession, ge
                         topic = tool_call.input.get("topic", message)
                         principles_url = tool_call.input.get("principles_source_url")
                         reply = await generate_essay(topic, context_str, provider, api_key, llm_factory, principles_source_url=principles_url)
-                        return reply, context_nodes
+                        return append_warning(reply), context_nodes
                 reply = next(block.text for block in response.content if block.type == "text")
             else:
                 # OpenAI / Grok
@@ -139,7 +150,7 @@ async def process_chat_message(message: str, provider: str, db: AsyncSession, ge
                         except:
                             topic = message
                         reply = await generate_essay(topic, context_str, provider, api_key, llm_factory, principles_source_url=principles_url)
-                        return reply, context_nodes
+                        return append_warning(reply), context_nodes
                 
                 reply = choice.message.content
 
@@ -147,14 +158,16 @@ async def process_chat_message(message: str, provider: str, db: AsyncSession, ge
             # If the cloud model hallucinated the tool call into the text response
             if generate_essay_flag and "generate_ship30_essay" in reply and ("{" in reply or "```json" in reply):
                 logger.info("Intercepted raw JSON tool hallucination from Cloud model.")
-                return await generate_essay(message, context_str, provider, api_key, llm_factory), context_nodes
+                fallback_reply = await generate_essay(message, context_str, provider, api_key, llm_factory)
+                return append_warning(fallback_reply), context_nodes
 
             # If the user wanted an essay but the model ignored the tool instruction
             if generate_essay_flag and "generate_ship30_essay" not in reply:
                 logger.info("Model ignored tool instruction, falling back to direct generation.")
-                return await generate_essay(message, context_str, provider, api_key, llm_factory), context_nodes
+                fallback_reply = await generate_essay(message, context_str, provider, api_key, llm_factory)
+                return append_warning(fallback_reply), context_nodes
 
-            return reply, context_nodes
+            return append_warning(reply), context_nodes
 
         else:
             # Handle Local Ollama Execution
@@ -180,7 +193,8 @@ async def process_chat_message(message: str, provider: str, db: AsyncSession, ge
                 except:
                     pass
                     
-                return await generate_essay(topic, context_str, provider, api_key, llm_factory), context_nodes
+                fallback_reply = await generate_essay(topic, context_str, provider, api_key, llm_factory)
+                return append_warning(fallback_reply), context_nodes
                 
             if response_msg.get("tool_calls"):
                 tool_call = response_msg["tool_calls"][0]["function"]
@@ -190,16 +204,16 @@ async def process_chat_message(message: str, provider: str, db: AsyncSession, ge
                         topic = args.get("topic", message)
                     except:
                         topic = message
-                    return await generate_essay(topic, context_str, provider, api_key, llm_factory), context_nodes
+                    fallback_reply = await generate_essay(topic, context_str, provider, api_key, llm_factory)
+                    return append_warning(fallback_reply), context_nodes
             
             # If the user wanted an essay but the local model ignored the tool instruction
             if generate_essay_flag:
                 logger.info("Local model ignored tool instruction, falling back to direct generation.")
-                return await generate_essay(message, context_str, provider, api_key, llm_factory), context_nodes
+                fallback_reply = await generate_essay(message, context_str, provider, api_key, llm_factory)
+                return append_warning(fallback_reply), context_nodes
                 
-            return content, context_nodes
-            
-            return content, context_nodes
+            return append_warning(content), context_nodes
 
     except Exception as e:
         logger.error(f"Agent execution failed: {str(e)}", exc_info=True)

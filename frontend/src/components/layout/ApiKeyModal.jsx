@@ -24,8 +24,8 @@ export default function ApiKeyModal() {
   };
 
   const handleClose = () => {
-    if (llmProvider !== 'local' && !apiKey) {
-      // Revert to local if they cancel without saving a key
+    if (llmProvider !== 'local' && llmProvider !== 'groq' && !apiKey) {
+      // Revert to local if they cancel without saving a key (unless Groq is allowed to be empty)
       setLlmProvider('local');
     }
     setIsModalOpen(false);
@@ -64,6 +64,19 @@ export default function ApiKeyModal() {
               placeholder={`Enter your ${localProvider} API key...`}
               className="api-key-input"
             />
+            {localProvider === 'groq' && (
+              <button 
+                type="button" 
+                onClick={() => {
+                  setLocalKey('');
+                  handleSave(); // Auto-save and close when they click this
+                }}
+                className="btn-save"
+                style={{ marginTop: '10px', width: '100%', backgroundColor: '#10b981' }}
+              >
+                Use Pre-provided Groq LLM
+              </button>
+            )}
             <span className="api-key-hint">
               Your key is only stored in your browser's current session and sent directly to the backend. It clears when you close the tab.
             </span>
