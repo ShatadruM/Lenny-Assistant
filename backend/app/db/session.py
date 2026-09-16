@@ -8,6 +8,10 @@ if raw_url and raw_url.startswith("postgresql://"):
 else:
     db_url = raw_url
 
+# Supabase requires SSL. If using Supabase and SSL is not in the URL, append it.
+if "supabase" in db_url and "ssl=" not in db_url.lower() and "sslmode=" not in db_url.lower():
+    db_url += "?ssl=require" if "?" not in db_url else "&ssl=require"
+
 engine = create_async_engine(
     db_url, 
     echo=False,
