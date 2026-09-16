@@ -16,15 +16,6 @@ Users struggle to query this knowledge base accurately, synthesize it into reada
 - **LLM Tool Use:** Automatically routes specific queries to generate highly-formatted "Ship 30 for 30" essays.
 - **Provider Agnostic:** Supports switching between local models (Ollama) and cloud models (OpenAI, Anthropic, Groq).
 
----
-
-## Live Deployment
-You can test the fully deployed application here: **[https://lennygrowthassistant.vercel.app/](https://lennygrowthassistant.vercel.app/)**
-
-> [!WARNING]
-> **Even when testing the live deployed URL, you MUST have Ollama running locally.** The backend requires it to generate RAG vector embeddings (`nomic-embed-text`) before it queries the cloud LLMs.
-
----
 
 ## Setup Instructions
 
@@ -44,19 +35,22 @@ ollama run nomic-embed-text
 
 ### 2. Environment Configuration
 The repository comes pre-configured with environment variables for local Docker deployment. 
-If you wish to use cloud models, you can enter your API keys directly in the Frontend UI, GROQ's api key is recommended.
 
 Ensure your `backend/.env` looks like this:
 ```env
-DATABASE_URL=postgresql://postgres.[YOUR_PROJECT]:[YOUR_PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres
-OLLAMA_URL=http://host.docker.internal:11434
-```
-use this
+# This is a mock Supabase connection that has the embeddings for testing purposes
 DATABASE_URL=postgresql://postgres.wuwmcphowwungxgjojbk:HcB1WE4PC0kEquvQ@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres
 
-this is a mock supabase connection that has the embeddings for testing purpose
+OLLAMA_URL=http://host.docker.internal:11434
+```
 
-### 2. Start the Application
+### 3. Cloud Provider Setup (Groq API Key)
+If you wish to use a cloud model (like Groq) for significantly faster and higher quality chat generation instead of local LLMs:
+1. Go to the [GroqCloud Console](https://console.groq.com/keys) and sign up or log in.
+2. Generate a new API Key.
+3. Once you start the application, navigate to the Chat UI, select **Groq** from the Provider dropdown, and paste your API key directly into the settings pop-up.
+
+### 4. Start the Application
 Open your terminal in the root of the project and run:
 
 ```bash
@@ -68,7 +62,7 @@ Docker will:
 2. Build the Vite React frontend.
 3. Serve the frontend via an Nginx container.
 
-### 3. Access the App
+### 5. Access the App
 Once the containers are running, open your browser and navigate to:
 **http://localhost:5173**
 
