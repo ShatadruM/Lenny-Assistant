@@ -37,7 +37,8 @@ OLLAMA_URL=http://host.docker.internal:11434
 ```
 use this
 DATABASE_URL=postgresql://postgres.wuwmcphowwungxgjojbk:HcB1WE4PC0kEquvQ@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres
-this is a supabase connection that has the embeddings for testing purpose
+
+this is a mock supabase connection that has the embeddings for testing purpose
 
 ### 2. Start the Application
 Open your terminal in the root of the project and run:
