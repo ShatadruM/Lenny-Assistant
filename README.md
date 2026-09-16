@@ -72,3 +72,41 @@ You can register a new account and immediately start chatting!
 If you want to use a local LLM instead of Cloud providers for the final text generation:
 1. Pull a chat model: `ollama run llama3`.
 2. Select "Local (Ollama)" from the provider dropdown in the UI.
+
+---
+
+## Architecture Overview
+- **Frontend**: React + Vite SPA with dynamic component rendering via sandboxed iframes and Mermaid.js diagram generation.
+- **Backend**: Python FastAPI with `httpx` for async API calls to LLM providers.
+- **Database**: Supabase Cloud (PostgreSQL + pgvector).
+- **RAG Pipeline**: Transcript chunks are embedded using Ollama's `nomic-embed-text` and retrieved via cosine distance similarity search in SQL.
+- **Agent Routing**: The `/chat` endpoint scans messages for intents (like "Ship 30") and seamlessly injects JSON Tool Schemas to trigger autonomous scraping and essay generation.
+
+---
+
+## Automated Testing
+The application includes an automated test suite for the backend API and RAG pipeline.
+
+To run the tests locally:
+1. Open a terminal and navigate to the `backend` directory.
+2. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   pip install pytest pytest-asyncio httpx
+   ```
+3. Execute the test suite:
+   ```bash
+   pytest tests/ -v
+   ```
+
+---
+
+## Troubleshooting
+
+> [!CAUTION]
+> **Deployed Links & Cloud Vercel Instances**
+> If you are attempting to test a live, deployed version of this backend (e.g. on Vercel) instead of running it locally via Docker, **you will likely encounter connection errors.**
+> 
+> The application's core RAG pipeline fundamentally requires access to the local Ollama `nomic-embed-text` model to embed your questions. A cloud server on Vercel cannot reach the `localhost:11434` instance running on your personal laptop. Unless you expose your local Ollama instance to the public internet (using tools like Ngrok) and update the `OLLAMA_URL` environment variable on Vercel, the deployed app will not function for RAG queries.
+>
+> **For the smoothest evaluation, please run the application locally using the provided `docker-compose up` instructions.**
