@@ -5,6 +5,7 @@ from app.db.models import Session, Message
 from app.schemas.chat import ChatRequest, ChatResponse
 from app.services.agent import process_chat_message
 from app.core.logger import logger
+import httpx
 
 router = APIRouter()
 
@@ -37,14 +38,18 @@ async def chat_endpoint(request: ChatRequest, db: AsyncSession = Depends(get_db)
         chat_history = [{"role": m.role, "content": m.content} for m in past_messages]
 
         # 5. Route to the agent 
-        reply_content, source_nodes = await process_chat_message(
-            message=request.message,
-            provider=request.llm_provider,
-            db=db,
-            generate_essay_flag=generate_essay,
-            api_key=request.api_key,
-            chat_history=chat_history
-        )
+        try:
+            reply_content, source_nodes = await process_chat_message(
+                message=request.message,
+                provider=request.llm_provider,
+                db=db,
+                generate_essay_flag=generate_essay,
+                api_key=request.api_key,
+                chat_history=chat_history
+            )
+        except httpx.ConnectError:
+            reply_content = "Please use a Cloud Provider with your own api key to chat, or ensure your local Ollama instance is running."
+            source_nodes = []
 
         # 6. Save assistant message to database
         assistant_msg = Message(session_id=session_id, role="assistant", content=reply_content)
