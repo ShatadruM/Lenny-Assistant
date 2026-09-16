@@ -44,11 +44,15 @@ DATABASE_URL=postgresql://postgres.wuwmcphowwungxgjojbk:HcB1WE4PC0kEquvQ@aws-0-a
 OLLAMA_URL=http://host.docker.internal:11434
 ```
 
-### 3. Cloud Provider Setup (Groq API Key)
-If you wish to use a cloud model (like Groq) for significantly faster and higher quality chat generation instead of local LLMs:
-1. Go to the [GroqCloud Console](https://console.groq.com/keys) and sign up or log in.
-2. Generate a new API Key.
-3. Once you start the application, navigate to the Chat UI, select **Groq** from the Provider dropdown, and paste your API key directly into the settings pop-up.
+### 3. Cloud Provider Setup
+If you wish to use a cloud model for significantly faster and higher quality chat generation instead of local LLMs, you have two options:
+
+**Option A (Use your own API Key):**
+1. Generate an API Key (e.g. from the [GroqCloud Console](https://console.groq.com/keys)).
+2. In the Chat UI settings modal, select your provider and paste your key.
+
+**Option B (Use Pre-provided Groq LLM):**
+Regardless of which provider is currently selected in the UI, you can click the green **"Use Pre-provided Groq LLM"** button in the API settings modal. This bypasses the key requirement and automatically routes your chat using the `GROQ_API_KEY` configured in the backend `.env` file!
 
 ### 4. Start the Application
 Open your terminal in the root of the project and run:
